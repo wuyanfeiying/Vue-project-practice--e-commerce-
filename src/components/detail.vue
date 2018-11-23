@@ -92,38 +92,25 @@
                                         </div>
                                     </div>
                                     <ul id="commentList" class="list-box">
-                                        <p style="margin: 5px 0px 15px 69px; line-height: 42px; text-align: center; border: 1px solid rgb(247, 247, 247);">暂无评论，快来抢沙发吧！</p>
-                                        <li>
+                                        <!-- 总评论数为0,说明没有人评论 -->
+                                        <p v-show="totalcount==0" style="margin: 5px 0px 15px 69px; line-height: 42px; text-align: center; border: 1px solid rgb(247, 247, 247);">暂无评论，快来抢沙发吧！</p>
+                                        <!-- 评论内容 -->
+                                        <li v-for="(item) in comments" :key="item.id">
                                             <div class="avatar-box">
                                                 <i class="iconfont icon-user-full"></i>
                                             </div>
                                             <div class="inner-box">
                                                 <div class="info">
-                                                    <span>匿名用户</span>
-                                                    <span>2017/10/23 14:58:59</span>
+                                                    <span>{{item.user_name}}</span>
+                                                    <span>{{item.add_time | handleTimePlus}}</span>
                                                 </div>
-                                                <p>testtesttest</p>
+                                                <p>{{item.content}}</p>
                                             </div>
-                                        </li>
-                                        <li>
-                                            <div class="avatar-box">
-                                                <i class="iconfont icon-user-full"></i>
-                                            </div>
-                                            <div class="inner-box">
-                                                <div class="info">
-                                                    <span>匿名用户</span>
-                                                    <span>2017/10/23 14:59:36</span>
-                                                </div>
-                                                <p>很清晰调动单很清晰调动单</p>
-                                            </div>
-                                        </li>
+                                        </li>                                       
                                     </ul>
                                     <div class="page-box" style="margin: 5px 0px 0px 62px;">
-                                        <div id="pagination" class="digg">
-                                            <span class="disabled">« 上一页</span>
-                                            <span class="current">1</span>
-                                            <span class="disabled">下一页 »</span>
-                                        </div>
+                                        <!-- 使用 iView 的Page 分页 -->
+                                        <Page @on-change="pageChange" :total="totalcount" show-sizer placement="top" :page-size-opts="[5,10,15,20]" :page-size="pageSize"/>
                                     </div>
                                 </div>
                             </div>
@@ -177,6 +164,10 @@
                 imglist:[],//图片列表
                 num1: 1,//购买数量
                 tabIndex:0,//记录切换tab栏的索引值
+                pageIndex:1,//页码
+                pageSize:10,//页容量
+                comments:[],//评论内容
+                totalcount:0,//总评论数
             }
         },
         methods: {
@@ -192,14 +183,34 @@
                         this.goodsinfo = result.data.message.goodsinfo;
                         this.hotgoodslist = result.data.message.hotgoodslist;
                         this.imglist = result.data.message.imglist;
-                    })
+                    });
+                //调用获取评论信息
+                this.getComments();
+            },
+            //获取评论信息
+            getComments(){
+                this.$axios
+                    .get(`http://111.230.232.110:8899/site/comment/getbypage/goods/${this.artID}?pageIndex=${this.pageIndex}&pageSize=${this.pageSize}`)
+                    .then((result)=>{
+                        // console.log(result);
+                        //评论内容
+                        this.comments = result.data.message;
+                        //总评论数
+                        this.totalcount = result.data.totalcount;
+                    });
+            },
+            //页码改变的回调函数
+            pageChange(pageIndex){
+                // console.log(pageIndex);//接受返回的用户点击的页码数
+                this.pageIndex = pageIndex;
+                this.getComments();//重新获取这一页的数据
             }
         },
         // 生命周期函数
         created() {
             this.initDate();
         }, 
-        //侦听器
+        //侦听器 
         watch:{
             $route(){
                 this.initDate();

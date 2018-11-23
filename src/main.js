@@ -45,12 +45,17 @@ let router = new VueRouter({
   routes
 });
 
-        // 注册全局过滤器
-        Vue.filter('handleTime',(value)=> {
-          var time = moment(value).format('YYYY年MM月DD日'); // 使用第三方插件,截取日期
-          return time;
-          }
-      );
+// 注册全局过滤器
+Vue.filter('handleTime',(value)=> {
+  var time = moment(value).format('YYYY年MM月DD日'); // 使用第三方插件,截取日期
+    return time;
+  }
+);
+Vue.filter('handleTimePlus',(value)=> {
+  var time = moment(value).format('YYYY年MM月DD日 HH:mm:ss'); // 使用第三方插件,截取日期
+    return time;
+  }
+);
 
 new Vue({
   render: h => h(App),
