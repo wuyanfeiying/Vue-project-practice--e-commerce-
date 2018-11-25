@@ -58,7 +58,7 @@
                                         <dd>
                                             <div id="buyButton" class="btn-buy">
                                                 <button onclick="cartAdd(this,'/',1,'/shopping.html');" class="buy">立即购买</button>
-                                                <button onclick="cartAdd(this,'/',0,'/cart.html');" class="add">加入购物车</button>
+                                                <button @click="$store.commit('increment')" class="add">加入购物车</button>
                                             </div>
                                         </dd>
                                     </dl>

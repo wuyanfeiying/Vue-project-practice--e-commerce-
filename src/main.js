@@ -25,6 +25,25 @@ Vue.use(ElementUI);
 import ProductZoomer from 'vue-product-zoomer';
 Vue.use(ProductZoomer);
 
+//Vuex的使用
+import Vuex from 'vuex';
+Vue.use(Vuex);
+
+// 实例化仓库对象
+const store = new Vuex.Store({
+  //状态
+  state: {
+    count: 0
+  },
+  //数据改变的方法
+  mutations: {
+    //增加
+    increment (state) {
+      state.count++
+    }
+  }
+})
+
 //设置到原型上的属性Vue中,建议使用$作为前缀,用来区分普通的属性
 Vue.prototype.$axios = axios;
 
@@ -66,5 +85,7 @@ Vue.filter('handleTimePlus',(value)=> {
 new Vue({
   render: h => h(App),
   // 传入路由对象
-  router
+  router,
+  //需要把store传递给Vue实例,这样在 子组件中才可以使用 $store
+  store
 }).$mount('#app')
