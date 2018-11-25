@@ -21,6 +21,9 @@ Vue.use(iView);
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 Vue.use(ElementUI);
+// 导入商品放大镜🔍
+import ProductZoomer from 'vue-product-zoomer';
+Vue.use(ProductZoomer);
 
 //设置到原型上的属性Vue中,建议使用$作为前缀,用来区分普通的属性
 Vue.prototype.$axios = axios;

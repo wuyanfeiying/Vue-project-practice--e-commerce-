@@ -13,7 +13,13 @@
                 <div class="wrap-box">
                     <div class="left-925">
                         <div class="goods-box clearfix">
-                            <div class="pic-box"></div>
+                            <div class="pic-box">
+                                <ProductZoomer
+                                    v-if = "images.normal_size.length != 0"
+                                    :base-images="images"
+                                    :base-zoomer-options="zoomerOptions"
+                                />
+                            </div>
                             <div class="goods-spec">
                                 <h1>{{goodsinfo.title}}</h1>
                                 <p class="subtitle">{{goodsinfo.sub_title}}</p>
@@ -111,7 +117,7 @@
                                     <div class="page-box" style="margin: 5px 0px 0px 62px;">
                                         <!-- 使用 iView 的Page 分页 -->
                                         <!-- on-page-size-change:切换每页条数时的回调，返回切换后的每页条数  -->
-                                        <Page show-elevator @on-page-size-change="sizeChange" @on-change="pageChange" :total="totalcount" :current="currentPage" show-sizer placement="top" :page-size-opts="[5,10,15,20]" :page-size="pageSize"/>
+                                        <Page show-elevator @on-page-size-change="sizeChange" @on-change="pageChange" :total="totalcount" :current="pageIndex" show-sizer placement="top" :page-size-opts="[5,10,15,20]" :page-size="pageSize"/>
                                     </div>
                                 </div>
                             </div>
@@ -169,8 +175,20 @@
                 pageSize:10,//页容量
                 comments:[],//评论内容
                 totalcount:0,//总评论数
-                currentPage:2,//当前页码
                 comment:"",//评论内容
+                images: { //放大镜数据(图片)                                                            
+                    normal_size: []                                               
+                }, 
+                zoomerOptions: { //放大镜设置(放大效果)
+                    'zoomFactor': 4,
+                    'pane': 'container-round',
+                    'hoverDelay': 300,
+                    'namespace': 'inline-zoomer',
+                    'move_by_click':true,
+                    'scroll_items': 5,
+                    'choosed_thumb_border_color': "#bbdefb"
+                }
+   
             }
         },
         methods: {
@@ -183,9 +201,20 @@
                     .get(`http://111.230.232.110:8899/site/goods/getgoodsinfo/${this.artID}`)
                     .then((result)=>{
                         // console.log(result);
-                        this.goodsinfo = result.data.message.goodsinfo;
-                        this.hotgoodslist = result.data.message.hotgoodslist;
-                        this.imglist = result.data.message.imglist;
+                        this.goodsinfo = result.data.message.goodsinfo;//商品详情
+                        this.hotgoodslist = result.data.message.hotgoodslist;//热卖商品
+                        this.imglist = result.data.message.imglist;//图片列表
+
+                        //商品放大镜效果
+                        this.images.normal_size = []; //先变成一个空数组
+                        //循环图片列表(数组),向放大镜插件里面的normal_size添加图片数据
+                        this.imglist.forEach(v => {
+                            this.images.normal_size.push({
+                                id: v.id,
+                                url: v.original_path
+                            })
+                        })
+
                     });
                 //调用获取评论信息
                 this.getComments();
@@ -193,7 +222,7 @@
             //获取评论信息
             getComments(){                
                 this.$axios
-                    .get(`http://111.230.232.110:8899/site/comment/getbypage/goods/${this.artID}?pageIndex=${this.pageIndex}&pageSize=${this.pageSize}`)
+                    .get(`site/comment/getbypage/goods/${this.artID}?pageIndex=${this.pageIndex}&pageSize=${this.pageSize}`)
                     .then((result)=>{
                         // console.log(result);
                         //评论内容
@@ -252,9 +281,10 @@
         //侦听器 
         watch:{
             $route(){
+                // 点击新的页面的时候,图片不会变,通过监听 图片数组,让图片重新加载
+                this.images.normal_size = [];
                 this.initDate();
-                this.currentPage = 1;
-                this.getComments();                
+                this.pageIndex = 1;             
             }            
         }       
         // 过滤器
@@ -267,5 +297,12 @@
     }
 </script>
 <style>
-    
+    .inline-zoomer-zoomer-box img{
+        width: 320px;
+        height: 320px;
+    }
+    .thumb-list img{
+        width: 100px;
+        height: 100px;
+    }
 </style>
