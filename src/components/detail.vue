@@ -58,7 +58,7 @@
                                         <dd>
                                             <div id="buyButton" class="btn-buy">
                                                 <button onclick="cartAdd(this,'/',1,'/shopping.html');" class="buy">立即购买</button>
-                                                <button @click="$store.commit('increment')" class="add">加入购物车</button>
+                                                <button @click="addTocart" class="add">加入购物车</button>
                                             </div>
                                         </dd>
                                     </dl>
@@ -269,6 +269,14 @@
                         }
                     })
                 }
+            },
+            // 加入购物车
+            addTocart(){
+                //提交载荷
+                this.$store.commit('addTocart',{
+                    goodId: this.artID,//商品ID
+                    goodNum: this.num1,//购买数量
+                })
             }
         },
         // 生命周期函数

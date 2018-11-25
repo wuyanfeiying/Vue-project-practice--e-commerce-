@@ -6,6 +6,7 @@ import './assets/site/css/style.css'
 // 导入每一页的组件
 import index from './components/index.vue'
 import detail from './components/detail.vue'
+import shopCart from './components/shopCart.vue'
 
 // 导入moment插件
 import moment from 'moment'
@@ -33,13 +34,41 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
   //状态
   state: {
-    count: 0
+    // count: 0
+    //购物车数据对象(主要的作用就是根据ID来让后面的代码获取购物车的点击数量)
+    //Vuex数据常驻,短路运算
+    cartData: JSON.parse(window.localStorage.getItem("hm24")) || {90:0}
+  
+  },
+  //Vuex的计算属性
+  getters: {
+    totalCount(state){
+      //通过state获取内部的数据,并返回
+      // return 998;
+
+      let num =0;
+      for (const key in state.cartData) {    
+        //循环累加
+        num += state.cartData[key];      
+      }
+      return num;
+    }
   },
   //数据改变的方法
   mutations: {
-    //增加
-    increment (state) {
-      state.count++
+
+    //向购物车添加数据的方法
+    addTocart(state,obj){
+
+      //商品已经存在
+      if (state.cartData[obj.goodId] != undefined) {
+        state.cartData[obj.goodId] += obj.goodNum;
+      } else {
+        //商品不存在
+        //使用 Vue.set才可以跟中数据改变
+        Vue.set(state.cartData,obj.goodId,obj.goodNum);
+      }
+      
     }
   }
 })
@@ -62,6 +91,7 @@ let routes  = [
   {path:'/index',component:index},
   // 使用动态路由匹配 传递参数
   {path:'/detail/:artID',component:detail},
+  {path:'/shopCart',component:shopCart},
 ]
 
 
@@ -81,6 +111,11 @@ Vue.filter('handleTimePlus',(value)=> {
     return time;
   }
 );
+
+//浏览器关闭,保存数据
+window.onbeforeunload = function(){
+  window.localStorage.setItem("hm24",JSON.stringify(store.state.cartData));
+}
 
 new Vue({
   render: h => h(App),
