@@ -135,6 +135,7 @@ export default {
         this.catelist = response.data.message.catelist;
         this.sliderlist = response.data.message.sliderlist;
         this.toplist = response.data.message.toplist;
+
       });
       //获取底部分类数据
       this.$axios

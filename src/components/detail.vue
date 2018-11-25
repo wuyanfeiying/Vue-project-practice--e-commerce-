@@ -82,11 +82,11 @@
                                         </div>
                                         <div class="conn-box">
                                             <div class="editor">
-                                                <textarea id="txtContent" name="txtContent" sucmsg=" " datatype="*10-1000" nullmsg="请填写评论内容！"></textarea>
+                                                <textarea v-model="comment" id="txtContent" name="txtContent" sucmsg=" " datatype="*10-1000" nullmsg="请填写评论内容！"></textarea>
                                                 <span class="Validform_checktip"></span>
                                             </div>
                                             <div class="subcon">
-                                                <input id="btnSubmit" name="submit" type="submit" value="提交评论" class="submit">
+                                                <input @click="submitComment" id="btnSubmit" name="submit" type="submit" value="提交评论" class="submit">
                                                 <span class="Validform_checktip"></span>
                                             </div>
                                         </div>
@@ -110,7 +110,8 @@
                                     </ul>
                                     <div class="page-box" style="margin: 5px 0px 0px 62px;">
                                         <!-- 使用 iView 的Page 分页 -->
-                                        <Page @on-change="pageChange" :total="totalcount" show-sizer placement="top" :page-size-opts="[5,10,15,20]" :page-size="pageSize"/>
+                                        <!-- on-page-size-change:切换每页条数时的回调，返回切换后的每页条数  -->
+                                        <Page show-elevator @on-page-size-change="sizeChange" @on-change="pageChange" :total="totalcount" :current="currentPage" show-sizer placement="top" :page-size-opts="[5,10,15,20]" :page-size="pageSize"/>
                                     </div>
                                 </div>
                             </div>
@@ -168,6 +169,8 @@
                 pageSize:10,//页容量
                 comments:[],//评论内容
                 totalcount:0,//总评论数
+                currentPage:2,//当前页码
+                comment:"",//评论内容
             }
         },
         methods: {
@@ -188,7 +191,7 @@
                 this.getComments();
             },
             //获取评论信息
-            getComments(){
+            getComments(){                
                 this.$axios
                     .get(`http://111.230.232.110:8899/site/comment/getbypage/goods/${this.artID}?pageIndex=${this.pageIndex}&pageSize=${this.pageSize}`)
                     .then((result)=>{
@@ -204,17 +207,55 @@
                 // console.log(pageIndex);//接受返回的用户点击的页码数
                 this.pageIndex = pageIndex;
                 this.getComments();//重新获取这一页的数据
+            },
+            //页容量改变
+            sizeChange(pageSize){
+                //用户点击选择页容量的时候,把返回的改变的值,重新复制,并调用 获取评论函数
+                this.pageSize = pageSize;
+                this.getComments();
+            },
+            //提交评论事件
+            submitComment(){
+                // 评论内容为空,提示用户
+                if(this.comment === ""){
+                    this.$Message.warning('请输入评论内容再发布!');
+                }else{
+                    //有内容,发送请求
+                    this.$axios.post(`site/validate/comment/post/goods/${this.artID}`,{
+                        "commenttxt": this.comment
+                    }).then(result => {
+                        //根据返回的结果,判断是否发表成功
+                        if(result.data.status ==0){
+                            //提示用户
+                            this.$Message.success('发表成功');
+                            //清空评论
+                            this.comment = "";
+                            //发表评论后,初始化页面评论为1
+                            this.pageIndex =1;
+                            //重新获取评论
+                            this.getComments();
+                        }else{
+                            //提示用户发表评论失败
+                            this.$Message.error('发表失败');
+                        }
+                    })
+                }
             }
         },
         // 生命周期函数
         created() {
             this.initDate();
+            //创建实例的时候,让页面到顶部
+            window.scrollTo(0,0);
+            
         }, 
         //侦听器 
         watch:{
             $route(){
                 this.initDate();
-            }
+                this.currentPage = 1;
+                this.getComments();                
+            }            
         }       
         // 过滤器
         // filters: {

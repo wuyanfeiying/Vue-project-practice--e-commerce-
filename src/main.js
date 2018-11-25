@@ -25,6 +25,9 @@ Vue.use(ElementUI);
 //设置到原型上的属性Vue中,建议使用$作为前缀,用来区分普通的属性
 Vue.prototype.$axios = axios;
 
+//抽取基础地址
+axios.defaults.baseURL = `http://111.230.232.110:8899/`;
+
 // 在模块化的开发环境下
 Vue.use(VueRouter) ;
 
