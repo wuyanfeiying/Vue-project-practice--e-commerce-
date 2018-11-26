@@ -110,6 +110,32 @@ let routes  = [
 let router = new VueRouter({
   routes
 });
+//增加导航守卫
+router.beforeEach((to, from, next) => {
+  // console.log(from);
+  // console.log(to);
+  if (to.path === "/order") {
+    //发送请求
+    axios.get("site/account/islogin").then(result => {
+      // console.log(result);
+      //用户没有登录
+      if (result.data.code === "nologin") {
+        //提示消息
+        Vue.prototype.$Message.warning("请先去登录");
+        //跳转(路由)
+        router.push('./index');
+        //让页面回到顶部
+        window.scrollTo(0,0);
+      }
+    })
+  } else {
+    //登录了,就往下执行
+    next();
+  }
+  // console.log("守卫开始了");
+  // next();//如果不next(),则不会执行,不会路由跳转
+  
+})
 
 // 注册全局过滤器
 Vue.filter('handleTime',(value)=> {
