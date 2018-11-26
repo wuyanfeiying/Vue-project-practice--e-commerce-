@@ -47,13 +47,34 @@
                                     <th width="48" align="center">
                                         <a>选择</a>
                                     </th>
-                                    <th align="left" colspan="2">商品信息</th>
+                                    <th align="left">商品信息</th>
                                     <th width="84" align="left">单价</th>
                                     <th width="104" align="center">数量</th>
                                     <th width="104" align="left">金额(元)</th>
                                     <th width="54" align="center">操作</th>
                                 </tr>
-                                <tr>
+                                <!-- 有数据的提示内容 -->
+                                <tr v-for="(item) in goodsList" :key="item.id">
+                                    <td>
+                                        <el-switch
+                                        v-model="item.isSelected"
+                                        active-color="#13ce66"
+                                        inactive-color="#ff4949">
+                                        </el-switch>
+                                    </td>
+                                    <td>
+                                        <img :src="item.img_url" alt="">
+                                        <span>{{item.title}}</span>
+                                    </td>
+                                    <td>{{item.sell_price}}</td>
+                                    <td>{{item.buycount}}</td>
+                                    <td>{{item.sell_price*item.buycount}}</td>
+                                    <td>
+                                        <el-input-number v-model="item.buycount" :min="0"></el-input-number>
+                                    </td>
+                                </tr>
+                                <!-- 没有数据的提示内容 -->
+                                <tr v-show="goodsList.length == 0">
                                     <td colspan="10">
                                         <div class="msg-tips">
                                             <div class="icon warning">
@@ -70,9 +91,9 @@
                                 <tr>
                                     <th align="right" colspan="8">
                                         已选择商品
-                                        <b class="red" id="totalQuantity">0</b> 件 &nbsp;&nbsp;&nbsp; 商品总金额（不含运费）：
+                                        <b class="red" id="totalQuantity">{{selectedCount}}</b> 件 &nbsp;&nbsp;&nbsp; 商品总金额（不含运费）：
                                         <span class="red">￥</span>
-                                        <b class="red" id="totalAmount">0</b>元
+                                        <b class="red" id="totalAmount">{{selectedPrice}}</b>元
                                     </th>
                                 </tr>
                             </tbody>
@@ -94,9 +115,87 @@
 </template>
 <script>
     export default {
-    name: "shopCart"
+        name: "shopCart",
+        data: function(){
+            return {
+                goodsList: [],//购物车商品数据
+            }
+        },
+        // 计算属性
+        computed: {
+            //选中商品的总数量
+            selectedCount(){
+                let num = 0;
+                this.goodsList.forEach(v => {
+                    // true,代表开关打开,也就是选中了
+                    if (v.isSelected === true) {
+                        // 购买数量累加
+                        num += v.buycount;
+                    }
+                })
+                return num;
+            },
+            //选中商品的总金额
+            selectedPrice(){
+                                let price = 0;
+                this.goodsList.forEach(v => {
+                    // true,代表开关打开,也就是选中了
+                    if (v.isSelected === true) {
+                        // 价格计算(购买个数*商品单价)
+                        price += (v.buycount*v.sell_price);
+                    }
+                })
+                return price;
+            }
+        },
+        //声明周期函数
+        created(){
+            //根据接口文档,需要发送请求的时候,多个id
+            let ids = '';
+            //可以通过Vuex获取商品数据
+            for (const key in this.$store.state.cartData) {
+                ids += key;
+                ids += ",";
+            }
+            //去掉最后一个逗号
+            ids = ids.slice(0,ids.length-1);
+            //调用接口
+            this.$axios.get(`site/comment/getshopcargoods/${ids}`).then(result=>{
+                //服务器返回的数据,没有商品购买个数(文档里说明了 默认是0 buycount:0),所以要自己拼接
+                // console.log(result);
+                result.data.message.forEach(element => {
+                    //根据商品ID,来找到商品的数量,赋值给buycount
+                    element.buycount = this.$store.state.cartData[element.id];
+                    //增加一个是否被选择的字段,好让switch开关判断,默认为 true
+                    element.isSelected = true;
+                });
+                // console.log(result);
+                //把返回的数据赋值给商品列表数组
+                this.goodsList = result.data.message;
+            })
+        },
+        //开始事件监听,观察数据的改变
+        watch: {
+            goodsList:{
+                handler: function (val, oldVal) { 
+                    // 同步修改Vuex中的数据
+                    this.$store.commit('方法名','参数名')
+                 },
+                deep: true
+            }
+        }
     };
 </script>
 
 <style>
+    td img{
+        width: 100px;
+    }
+    td:nth-child(2){
+        display: flex;
+        align-items: center;
+    }
+    td span {
+        margin-left: 10px;
+    }
 </style>
