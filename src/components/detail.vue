@@ -276,7 +276,14 @@
                 this.$store.commit('addTocart',{
                     goodId: this.artID,//商品ID
                     goodNum: this.num1,//购买数量
-                })
+                });
+                //提示用户
+                this.$notify({
+                    title: '成功',
+                    message: '商品加入成功',
+                    type: 'success',
+                    duration: 1000
+                });
             }
         },
         // 生命周期函数
