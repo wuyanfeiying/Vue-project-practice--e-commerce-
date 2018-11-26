@@ -7,6 +7,7 @@ import './assets/site/css/style.css'
 import index from './components/index.vue'
 import detail from './components/detail.vue'
 import shopCart from './components/shopCart.vue'
+import order from './components/order.vue'
 
 // 导入moment插件
 import moment from 'moment'
@@ -56,10 +57,8 @@ const store = new Vuex.Store({
   },
   //数据改变的方法
   mutations: {
-
     //向购物车添加数据的方法
     addTocart(state,obj){
-
       //商品已经存在
       if (state.cartData[obj.goodId] != undefined) {
         state.cartData[obj.goodId] += obj.goodNum;
@@ -69,7 +68,16 @@ const store = new Vuex.Store({
         Vue.set(state.cartData,obj.goodId,obj.goodNum);
       }
       
-    }
+    },
+    //增加一个修改数据的方法
+    updateCartData(state,obj){
+      // console.log(obj);
+      state.cartData = obj;
+    },
+    //删除某一条数据的方法
+    // delGoodsById(state,id){
+    //   Vue.delete(state.cartData,id)
+    // }
   }
 })
 
@@ -91,7 +99,10 @@ let routes  = [
   {path:'/index',component:index},
   // 使用动态路由匹配 传递参数
   {path:'/detail/:artID',component:detail},
+  //购物车页面
   {path:'/shopCart',component:shopCart},
+  //订单页面
+  {path:'/order',component:order},
 ]
 
 

@@ -67,10 +67,13 @@
                                         <span>{{item.title}}</span>
                                     </td>
                                     <td>{{item.sell_price}}</td>
-                                    <td>{{item.buycount}}</td>
-                                    <td>{{item.sell_price*item.buycount}}</td>
                                     <td>
                                         <el-input-number v-model="item.buycount" :min="0"></el-input-number>
+                                    </td>
+                                    <td>{{item.sell_price*item.buycount}}</td>
+                                    <td>           
+                                        <!-- 删除按钮 -->
+                                        <el-button @click="deleteOne(item.id)" type="danger" icon="el-icon-delete" circle></el-button>
                                     </td>
                                 </tr>
                                 <!-- 没有数据的提示内容 -->
@@ -104,7 +107,9 @@
                     <div class="cart-foot clearfix">
                         <div class="right-box">
                             <button class="button" onclick="javascript:location.href='/index.html';">继续购物</button>
-                            <button class="submit" onclick="formSubmit(this, '/', '/shopping.html');">立即结算</button>
+                            <router-link to="/order">
+                            <button class="submit">立即结算</button>
+                            </router-link>                            
                         </div>
                     </div>
                     <!--购物车底部-->
@@ -119,6 +124,31 @@
         data: function(){
             return {
                 goodsList: [],//购物车商品数据
+            }
+        },
+        methods:{
+            //点击按钮,删除商品事件
+            deleteOne(id){
+                this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+                }).then(() => {
+                    this.goodsList.forEach((v,index)=>{
+                        if (v.id === id) {
+                            this.goodsList.splice(index,1)
+                        }
+                    })
+                this.$message({
+                    type: 'success',
+                    message: '删除成功!'
+                });
+                }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消删除'
+                });          
+                });
             }
         },
         // 计算属性
@@ -137,7 +167,7 @@
             },
             //选中商品的总金额
             selectedPrice(){
-                                let price = 0;
+                let price = 0;
                 this.goodsList.forEach(v => {
                     // true,代表开关打开,也就是选中了
                     if (v.isSelected === true) {
@@ -178,8 +208,15 @@
         watch: {
             goodsList:{
                 handler: function (val, oldVal) { 
+                    // console.log(val);
+                    let obj = {};
+                    val.forEach(v=>{
+                        //动态的添加属性
+                        obj[v.id] = v.buycount;
+                    })
+                    // console.log(obj);
                     // 同步修改Vuex中的数据
-                    this.$store.commit('方法名','参数名')
+                    this.$store.commit('updateCartData',obj)
                  },
                 deep: true
             }
@@ -195,7 +232,7 @@
         display: flex;
         align-items: center;
     }
-    td span {
+    td>span {
         margin-left: 10px;
     }
 </style>
