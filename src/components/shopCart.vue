@@ -107,7 +107,7 @@
                     <div class="cart-foot clearfix">
                         <div class="right-box">
                             <button class="button" onclick="javascript:location.href='/index.html';">继续购物</button>
-                            <router-link to="/order">
+                            <router-link :to="'/order/'+selectIds">
                             <button class="submit">立即结算</button>
                             </router-link>                            
                         </div>
@@ -176,6 +176,21 @@
                     }
                 })
                 return price;
+            },
+            //选中商品的ID
+            selectIds(){
+                let ids = '';
+                this.goodsList.forEach(v=>{
+                    //判断用户选中的商品,并拼接起来
+                    if (v.isSelected===true) {
+                        ids+=v.id;
+                        ids+=",";
+                    }                     
+                })
+                //去掉最后一个的逗号
+                ids = ids.slice(0,ids.length-1);
+                //返回ids
+                return ids;
             }
         },
         //声明周期函数

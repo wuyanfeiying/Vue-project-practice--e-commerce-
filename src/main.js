@@ -110,7 +110,7 @@ let routes  = [
   //购物车页面
   {path:'/shopCart',component:shopCart},
   //订单页面
-  {path:'/order',component:order},
+  {path:'/order/:ids',component:order},
   //登录页面
   {path:'/login',component:login},
 ]
@@ -124,7 +124,8 @@ let router = new VueRouter({
 router.beforeEach((to, from, next) => {
   // console.log(from);
   // console.log(to);
-  if (to.path === "/order") {
+  // 判断要去的路径是不是 order(订单页)
+  if (to.path.indexOf("/order") != -1) {
     //发送请求
     axios.get("site/account/islogin").then(result => {
       // console.log(result);
