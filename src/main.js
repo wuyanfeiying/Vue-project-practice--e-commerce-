@@ -8,6 +8,7 @@ import index from './components/index.vue'
 import detail from './components/detail.vue'
 import shopCart from './components/shopCart.vue'
 import order from './components/order.vue'
+import login from './components/login.vue'
 
 // 导入moment插件
 import moment from 'moment'
@@ -38,8 +39,9 @@ const store = new Vuex.Store({
     // count: 0
     //购物车数据对象(主要的作用就是根据ID来让后面的代码获取购物车的点击数量)
     //Vuex数据常驻,短路运算
-    cartData: JSON.parse(window.localStorage.getItem("hm24")) || {90:0}
-  
+    cartData: JSON.parse(window.localStorage.getItem("hm24")) || {90:0},
+    //是否登录的字段
+    isLogin: false,  
   },
   //Vuex的计算属性
   getters: {
@@ -78,11 +80,17 @@ const store = new Vuex.Store({
     // delGoodsById(state,id){
     //   Vue.delete(state.cartData,id)
     // }
+    //登录状态改变的方法
+    changeLogin(state,isLogin){
+      state.isLogin = isLogin;
+    }
   }
 })
 
 //设置到原型上的属性Vue中,建议使用$作为前缀,用来区分普通的属性
 Vue.prototype.$axios = axios;
+
+axios.defaults.withCredentials = true;//让ajax携带cookie
 
 //抽取基础地址
 axios.defaults.baseURL = `http://111.230.232.110:8899/`;
@@ -103,6 +111,8 @@ let routes  = [
   {path:'/shopCart',component:shopCart},
   //订单页面
   {path:'/order',component:order},
+  //登录页面
+  {path:'/login',component:login},
 ]
 
 
@@ -123,9 +133,12 @@ router.beforeEach((to, from, next) => {
         //提示消息
         Vue.prototype.$Message.warning("请先去登录");
         //跳转(路由)
-        router.push('./index');
+        router.push('./login');
         //让页面回到顶部
         window.scrollTo(0,0);
+      }else{
+        // 用户登录成功
+        next();        
       }
     })
   } else {
@@ -159,5 +172,24 @@ new Vue({
   // 传入路由对象
   router,
   //需要把store传递给Vue实例,这样在 子组件中才可以使用 $store
-  store
+  store,
+  created() {
+        //发送请求
+        axios.get("site/account/islogin").then(result => {
+          // console.log(result);
+          //用户没有登录
+          if (result.data.code === "nologin") {
+            //提示消息
+            Vue.prototype.$Message.warning("请先去登录");
+            //跳转(路由)
+            router.push('./login');
+            //让页面回到顶部
+            window.scrollTo(0,0);
+          }else{
+            // 用户登录成功
+            store.state.isLogin = true;
+            // next();        
+          }
+        })
+  },
 }).$mount('#app')

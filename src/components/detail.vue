@@ -275,7 +275,7 @@
                 //提交载荷
                 this.$store.commit('addTocart',{
                     goodId: this.artID,//商品ID
-                    goodNum: this.num1,//购买数量
+                    goodNum: this.num1,//购买数量                    
                 });
                 //提示用户
                 this.$notify({

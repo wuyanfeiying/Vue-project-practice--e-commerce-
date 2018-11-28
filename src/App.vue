@@ -11,16 +11,16 @@
                     <a target="_blank" href="#"></a>
                 </div>
                 <div id="menu" class="right-box">
-                    <span style="display: none;">
-                        <a href="" class="">登录</a>
+                    <span v-show="this.$store.state.isLogin==false" >
+                        <router-link to="/login">登录</router-link>
                         <strong>|</strong>
                         <a href="" class="">注册</a>
                         <strong>|</strong>
                     </span>
-                    <span>
+                    <span v-show="this.$store.state.isLogin==true">
                         <a href="" class="">会员中心</a>
                         <strong>|</strong>
-                        <a>退出</a>
+                        <a @click="loginOut">退出</a>
                         <strong>|</strong>
                     </span>
                     <!-- <a href="" class=""> -->
@@ -125,6 +125,22 @@
 
 export default {
   name: 'app',
+  methods:{
+      //登出按钮事件
+      loginOut(){
+          //调用登出接口
+          this.$axios.get('site/account/logout').then(result=>{
+            //   console.log(result);
+            if(result.data.status === 0){
+                this.$Message.success(result.data.message);
+                // 编程式导航,去首页
+                this.$router.push('./index');
+                //向仓库,提交载荷
+                this.$store.commit('changeLogin',false);
+            }
+          })
+      }
+  },
   created() {
     //   console.log(this.$store);
     //   console.log(this.$store.state.count);
