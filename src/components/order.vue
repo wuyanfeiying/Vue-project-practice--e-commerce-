@@ -79,8 +79,10 @@
                                 <!--取得一个DataTable-->
                                 <li>
                                     <label>
-                                        <input name="payment_id" type="radio" onclick="paymentAmountTotal(this);" value="1">
-                                        <input name="payment_price" type="hidden" value="0.00">在线支付
+                                        <!-- <input name="payment_id" type="radio" onclick="paymentAmountTotal(this);" value="1"> -->
+                                        <!-- <input name="payment_price" type="hidden" value="0.00">在线支付 -->
+                                        <el-radio v-model="ruleForm.payment_id" :label="6">在线支付</el-radio>
+                                        &nbsp;&nbsp;                                        
                                         <em>手续费：0.00元</em>
                                     </label>
                                 </li>
@@ -92,9 +94,20 @@
                                 <!--取得一个DataTable-->
                                 <li>
                                     <label>
-                                        <input name="express_id" type="radio" onclick="freightAmountTotal(this);" value="1" datatype="*" sucmsg=" ">
+                                        <!-- <input name="express_id" type="radio" onclick="freightAmountTotal(this);" value="1" datatype="*" sucmsg=" ">
                                         <input name="express_price" type="hidden" value="20.00">顺丰快递
+                                        <em>费用：20.00元</em> -->
+                                        <el-radio @change="ruleForm.expressMoment=20" v-model="ruleForm.express_id" label="1">顺丰快递</el-radio>
+                                        &nbsp;&nbsp; 
                                         <em>费用：20.00元</em>
+                                        &nbsp;&nbsp; 
+                                        <el-radio @change="ruleForm.expressMoment=15" v-model="ruleForm.express_id" label="2">圆通快递</el-radio>
+                                        &nbsp;&nbsp; 
+                                        <em>费用：15.00元</em>
+                                        &nbsp;&nbsp; 
+                                        <el-radio @change="ruleForm.expressMoment=10" v-model="ruleForm.express_id" label="3">韵达快递</el-radio>
+                                        &nbsp;&nbsp; 
+                                        <em>费用：10.00元</em>
                                         <span class="Validform_checktip"></span>
                                     </label>
                                 </li>
@@ -146,7 +159,7 @@
                                     <dl>
                                         <dt>订单备注(100字符以内)</dt>
                                         <dd>
-                                            <textarea name="message" class="input" style="height:35px;"></textarea>
+                                            <textarea v-model="ruleForm.message" name="message" class="input" style="height:35px;"></textarea>
                                         </dd>
                                     </dl>
                                 </div>
@@ -158,15 +171,16 @@
                                     </p>
                                     <p>
                                         运费：￥
-                                        <label id="expressFee" class="price">0.00</label> 元
+                                        <label id="expressFee" class="price">{{ruleForm.expressMoment}}</label> 元
                                     </p>
                                     <p class="txt-box">
                                         应付总金额：￥
-                                        <label id="totalAmount" class="price">2299.00</label>
+                                        <label id="totalAmount" class="price">{{totalPrice+ruleForm.expressMoment}}</label>
                                     </p>
                                     <p class="btn-box">
-                                        <a class="btn button" href="/cart.html">返回购物车</a>
-                                        <a id="btnSubmit" class="btn submit">确认提交</a>
+                                        <!-- <a class="btn button" href="/cart.html">返回购物车</a> -->
+                                        <router-link class="btn button"  to="/shopCart">返回购物车</router-link>
+                                        <a @click="submit('ruleForm')" id="btnSubmit" class="btn submit">确认提交</a>
                                     </p>
                                 </div>
                             </div>
@@ -255,18 +269,22 @@
                 totalPrice:0,//商品总金额(不包含运费)
                 //表单属性名
                 ruleForm:{                    
-                    accpet_name:"",// 收货人姓名
-                    address:"",// 详细地址
-                    mobile:"",// 手机号码
-                    email:"",// 邮箱地址
-                    post_code:"",// 邮政编码
+                    accpet_name:"小红豆",// 收货人姓名
+                    address:"广东省深圳市宝安区红豆村",// 详细地址
+                    mobile:"18282828282",// 手机号码
+                    email:"xiaohongdou@qq.com",// 邮箱地址
+                    post_code:"272100",// 邮政编码
                     //所属地区
                     area:{
                         // 一打开页面默认显示的
                         province:{code:370004,value:"山东省"},
                         city:{code:370800,value:"济宁市"},
                         area:{code:370811,value:"任城区",}
-                    }
+                    },
+                    payment_id: 6,//在线支付
+                    express_id: "1",//配送方式
+                    expressMoment: 20,//运费
+                    message:"发货快点哦~",//备注消息
                 },
                 //验证规则
                 rules:{
@@ -297,8 +315,37 @@
         },
         methods:{
             selectedArea(newArea){
-                console.log(newArea);
+                // console.log(newArea);
                 this.ruleForm.area = newArea;
+            },
+            //确认提交订单按钮
+            submit(formName){
+                //提交数据之前,会对数据进行一次验证
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        // alert('submit!');
+                        //准备数据(少的那三个现在写出来)
+                        this.ruleForm.goodsAmount = this.totalCount;//购买商品总数
+                        this.ruleForm.goodsids = this.ids;//购买商品的id们
+                        let obj = {};//{id:个数}
+                        this.goodsList.forEach(v=>{
+                            obj[v.id] = v.buycount;
+                        });
+                        this.ruleForm.cargoodsobj = obj;//购买商品对象
+                        //发送请求
+                        this.$axios.post("site/validate/order/setorder",this.ruleForm).then(result=>{
+                            // console.log(result);
+                            this.$Message.success("提交订单成功!");
+                            //跳转路由
+                            this.$router.push('/pay');
+                        });
+                    } else {
+                        // console.log('error submit!!');
+                        this.$Message.warning("数据填写错误,请检查!");
+                        return false;
+                    }
+                });
+
             }
         },
         //获取传递过来id,调用接口
