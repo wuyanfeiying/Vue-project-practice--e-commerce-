@@ -9,6 +9,8 @@ import detail from './components/detail.vue'
 import shopCart from './components/shopCart.vue'
 import order from './components/order.vue'
 import login from './components/login.vue'
+import pay from './components/pay.vue'
+import paySuccess from './components/paySuccess.vue'
 
 // 导入moment插件
 import moment from 'moment'
@@ -110,9 +112,34 @@ let routes  = [
   //购物车页面
   {path:'/shopCart',component:shopCart},
   //订单页面
-  {path:'/order/:ids',component:order},
+  {
+    path:'/order/:ids',
+    component:order,
+    //路由元信息
+    meta:{
+      checkLogin:true
+    }
+  },
   //登录页面
   {path:'/login',component:login},
+  //支付订单详情页面
+  {
+    path:'/pay/:orderId',
+    component:pay,
+    //路由元信息
+    meta:{
+      checkLogin:true
+    }
+  },
+  //支付成功页面
+  {
+    path:'/paySuccess',
+    component:paySuccess,
+    //路由元信息
+    meta:{
+      checkLogin:true
+    }
+  },
 ]
 
 
@@ -125,7 +152,10 @@ router.beforeEach((to, from, next) => {
   // console.log(from);
   // console.log(to);
   // 判断要去的路径是不是 order(订单页)
-  if (to.path.indexOf("/order") != -1) {
+  // if (to.path.indexOf("/order") != -1) {
+  
+  //使用路由元信息,对需要登录判断的路由组件进行修饰,如果有这个字段,就需要登录,没有,直接放行
+  if (to.meta.checkLogin === true) {
     //发送请求
     axios.get("site/account/islogin").then(result => {
       // console.log(result);

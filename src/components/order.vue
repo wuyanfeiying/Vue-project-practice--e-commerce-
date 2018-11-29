@@ -46,8 +46,8 @@
                             <!-- 收货地址 -->
                             <div class="form-box address-info">
                                 <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
-                                    <el-form-item label="收货人姓名" prop="accpet_name">
-                                        <el-input v-model="ruleForm.accpet_name"></el-input>
+                                    <el-form-item label="收货人姓名" prop="accept_name">
+                                        <el-input v-model="ruleForm.accept_name"></el-input>
                                     </el-form-item>
                                     <el-form-item label="所属地区"  prop="area" >
                                         <VDistpicker
@@ -269,7 +269,7 @@
                 totalPrice:0,//商品总金额(不包含运费)
                 //表单属性名
                 ruleForm:{                    
-                    accpet_name:"小红豆",// 收货人姓名
+                    accept_name:"小红豆",// 收货人姓名
                     address:"广东省深圳市宝安区红豆村",// 详细地址
                     mobile:"18282828282",// 手机号码
                     email:"xiaohongdou@qq.com",// 邮箱地址
@@ -284,11 +284,11 @@
                     payment_id: 6,//在线支付
                     express_id: "1",//配送方式
                     expressMoment: 20,//运费
-                    message:"发货快点哦~",//备注消息
+                    message:"发货快点哦~",//备注消息 
                 },
                 //验证规则
                 rules:{
-                    accpet_name:[
+                    accept_name:[
                         //required 必填 message 信息 trigger 触发时机
                         { required: true, message: '请输入收货人姓名', trigger: 'change' },
                         { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'change' }
@@ -325,7 +325,7 @@
                     if (valid) {
                         // alert('submit!');
                         //准备数据(少的那三个现在写出来)
-                        this.ruleForm.goodsAmount = this.totalCount;//购买商品总数
+                        this.ruleForm.goodsAmount = this.totalPrice+this.ruleForm.expressMoment;//购买商品总额
                         this.ruleForm.goodsids = this.ids;//购买商品的id们
                         let obj = {};//{id:个数}
                         this.goodsList.forEach(v=>{
@@ -334,10 +334,10 @@
                         this.ruleForm.cargoodsobj = obj;//购买商品对象
                         //发送请求
                         this.$axios.post("site/validate/order/setorder",this.ruleForm).then(result=>{
-                            // console.log(result);
+                            console.log(result);
                             this.$Message.success("提交订单成功!");
                             //跳转路由
-                            this.$router.push('/pay');
+                            this.$router.push('/pay/'+result.data.message.orderid);
                         });
                     } else {
                         // console.log('error submit!!');

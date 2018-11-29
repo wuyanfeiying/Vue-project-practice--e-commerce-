@@ -222,7 +222,7 @@
         //开始事件监听,观察数据的改变
         watch: {
             goodsList:{
-                handler: function (val, oldVal) { 
+                handler: function (val) { 
                     // console.log(val);
                     let obj = {};
                     val.forEach(v=>{
