@@ -11,6 +11,7 @@ import order from './components/order.vue'
 import login from './components/login.vue'
 import pay from './components/pay.vue'
 import paySuccess from './components/paySuccess.vue'
+import vipCenter from './components/vipCenter.vue'
 
 // 导入moment插件
 import moment from 'moment'
@@ -79,9 +80,9 @@ const store = new Vuex.Store({
       state.cartData = obj;
     },
     //删除某一条数据的方法
-    // delGoodsById(state,id){
-    //   Vue.delete(state.cartData,id)
-    // }
+    delGoodsById(state,id){
+      Vue.delete(state.cartData,id)
+    },
     //登录状态改变的方法
     changeLogin(state,isLogin){
       state.isLogin = isLogin;
@@ -135,6 +136,15 @@ let routes  = [
   {
     path:'/paySuccess',
     component:paySuccess,
+    //路由元信息
+    meta:{
+      checkLogin:true
+    }
+  },
+  //会员中心页面
+  {
+    path:'/vipCenter',
+    component:vipCenter,
     //路由元信息
     meta:{
       checkLogin:true

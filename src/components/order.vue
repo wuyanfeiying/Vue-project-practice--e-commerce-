@@ -338,6 +338,10 @@
                             this.$Message.success("提交订单成功!");
                             //跳转路由
                             this.$router.push('/pay/'+result.data.message.orderid);
+                            //删除Vuex中当前购买的数据
+                            this.goodsList.forEach(v=>{
+                                this.$store.commit('delGoodsById',v.id)
+                            })
                         });
                     } else {
                         // console.log('error submit!!');

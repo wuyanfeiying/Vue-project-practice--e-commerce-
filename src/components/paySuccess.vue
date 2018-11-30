@@ -25,7 +25,9 @@
                                                 <strong>订单已支付成功！</strong>
                                                 还有<span class="second">{{second}}<i class="secondUnit">S</i></span>跳转至首页
                                                 <p>您可以点击这里进入
-                                                    <a href="/user/center/index.html">会员中心</a>查看订单状态！</p>
+                                                    <!-- <a href="/user/center/index.html">会员中心</a> -->
+                                                    <router-link to="/vipCenter">会员中心</router-link>
+                                                    查看订单状态！</p>
                                                 <p>如有其它问题，请立即与我们客服人员联系。</p>
                                             </div>
                                         </div>
@@ -44,7 +46,21 @@
         data: function(){
             return {
                second:5, //倒计时秒数
+               interId:0,//定时器id
             }
+        },
+        created() {
+            // 开启定时器
+            this.interId = setInterval(()=>{
+                this.second --;
+                if (this.second ===0) {
+                    //倒计时结束,发生跳转
+                    this.$router.push('/index')
+                }
+            },1000)
+        },
+        destroyed(){
+            clearInterval(this.interId);//清除定时器
         }
     }
 </script>
