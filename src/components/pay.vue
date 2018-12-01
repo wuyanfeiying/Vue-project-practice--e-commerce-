@@ -95,7 +95,7 @@
         },
         //生命周期函数(被创建)
         created(){
-            // console.log(this.$route);
+            console.log(this.$route);
             this.orderId = this.$route.params.orderId;
             //发送请求,根据订单ID获取订单信息
             this.$axios.get(`site/validate/order/getorder/${this.orderId}`).then(result=>{

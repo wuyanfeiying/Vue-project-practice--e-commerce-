@@ -12,6 +12,9 @@ import login from './components/login.vue'
 import pay from './components/pay.vue'
 import paySuccess from './components/paySuccess.vue'
 import vipCenter from './components/vipCenter.vue'
+import orderList from './components/orderList.vue'
+import orderDetail from './components/orderDetail.vue'
+import orderIndex from './components/orderIndex.vue'
 
 // 导入moment插件
 import moment from 'moment'
@@ -148,7 +151,26 @@ let routes  = [
     //路由元信息
     meta:{
       checkLogin:true
-    }
+    },
+    //嵌套路由
+    children:[
+      {
+        path:'',
+        redirect: "orderIndex"
+      },
+      {
+        path:'orderIndex',
+        component:orderIndex,
+      },
+      {
+        path:'orderList',
+        component:orderList,
+      },
+      {
+        path:'orderDetail',
+        component:orderDetail,
+      }
+    ]
   },
 ]
 
