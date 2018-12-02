@@ -167,7 +167,7 @@ let routes  = [
         component:orderList,
       },
       {
-        path:'orderDetail',
+        path:'orderDetail/:orderId',
         component:orderDetail,
       }
     ]
@@ -180,6 +180,7 @@ let router = new VueRouter({
   routes
 });
 //增加导航守卫
+//每次路由改变的时候触发
 router.beforeEach((to, from, next) => {
   // console.log(from);
   // console.log(to);
@@ -211,6 +212,11 @@ router.beforeEach((to, from, next) => {
   // console.log("守卫开始了");
   // next();//如果不next(),则不会执行,不会路由跳转
   
+});
+//路由跳转完毕后触发
+router.afterEach(()=>{
+  //滚动到顶部
+  window.scrollTo(0,0)
 })
 
 // 注册全局过滤器
@@ -223,6 +229,10 @@ Vue.filter('handleTimePlus',(value)=> {
   var time = moment(value).format('YYYY年MM月DD日 HH:mm:ss'); // 使用第三方插件,截取日期
     return time;
   }
+);
+Vue.filter('addSmile',()=> { 
+    return "谢谢老板 ;-)";
+}
 );
 
 //浏览器关闭,保存数据
